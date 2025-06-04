@@ -15,7 +15,32 @@
 
 defined( 'ABSPATH' ) || exit;
 
+
+add_action( 'enqueue_block_editor_assets', 'sync_alt_text_enqueue_editor_script' );
 add_action( 'save_post', 'sync_alt_text_on_save_post', 10, 3 );
+
+/**
+ * Enqueue the editor script for the Sync Alt Text plugin.
+ *
+ * @return void
+ */
+function sync_alt_text_enqueue_editor_script() {
+	$asset_file = plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
+
+	if ( ! file_exists( $asset_file ) ) {
+		return;
+	}
+
+	$asset = require $asset_file;
+
+	wp_enqueue_script(
+		'sync-alt-text-editor',
+		plugins_url( 'build/index.js', __FILE__ ),
+		$asset['dependencies'],
+		$asset['version'],
+		false
+	);
+}
 
 /**
  * Sync alt text from media blocks to the image's attachment metadata on post save.
